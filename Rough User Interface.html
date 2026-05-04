@@ -1,0 +1,331 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); font-size: 13px; color: var(--color-text-primary); }
+
+  .topbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    flex-wrap: wrap;
+  }
+  .app-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-right: 4px; }
+  .room-id {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 4px 10px; font-size: 12px; font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+  .badge-live {
+    display: flex; align-items: center; gap: 5px;
+    background: #EAF3DE; color: #3B6D11;
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 500;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #639922; }
+  .btn {
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border-radius: var(--border-radius-md);
+    padding: 5px 12px; font-size: 12px; cursor: pointer;
+  }
+  .btn-run {
+    background: #1D9E75; color: #E1F5EE;
+    border: none; border-radius: var(--border-radius-md);
+    padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .btn-leave {
+    background: #FCEBEB; color: #A32D2D;
+    border: 0.5px solid #F09595;
+    border-radius: var(--border-radius-md);
+    padding: 5px 12px; font-size: 12px; cursor: pointer; margin-left: auto;
+  }
+  select.lang-select {
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border-radius: var(--border-radius-md);
+    padding: 5px 10px; font-size: 12px;
+  }
+
+  .main-area {
+    display: grid;
+    grid-template-columns: 170px 1fr 190px;
+    height: 320px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .left-panel {
+    border-right: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+    padding: 10px;
+    overflow-y: auto;
+  }
+  .panel-title {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--color-text-tertiary); margin-bottom: 10px;
+  }
+  .user-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: var(--border-radius-md);
+    margin-bottom: 4px;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+  .av1 { background: #CECBF6; color: #3C3489; }
+  .av2 { background: #9FE1CB; color: #085041; }
+  .av3 { background: #F5C4B3; color: #712B13; }
+  .user-name { font-size: 12px; color: var(--color-text-primary); }
+  .user-you { font-size: 10px; color: var(--color-text-tertiary); }
+  .online-dot { width: 6px; height: 6px; border-radius: 50%; background: #639922; margin-left: auto; }
+
+  .editor-area {
+    background: #1e1e2e;
+    position: relative;
+    overflow: hidden;
+  }
+  .editor-topbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: #16162a;
+    border-bottom: 0.5px solid #2a2a3e;
+  }
+  .tab {
+    font-size: 11px; color: #888; padding: 3px 10px;
+    border-radius: 4px 4px 0 0;
+  }
+  .tab.active { background: #1e1e2e; color: #cdd6f4; }
+  .line-numbers {
+    position: absolute; left: 0; top: 30px; bottom: 0;
+    width: 40px; background: #16162a;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 10px; gap: 2px;
+  }
+  .ln { font-size: 11px; color: #444; font-family: var(--font-mono); }
+  .code-lines {
+    position: absolute; left: 40px; right: 0; top: 30px; bottom: 0;
+    padding: 10px 12px; overflow: hidden;
+  }
+  .code-line { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; white-space: pre; }
+  .kw { color: #cba6f7; }
+  .fn { color: #89b4fa; }
+  .str { color: #a6e3a1; }
+  .cmt { color: #585b70; }
+  .num { color: #fab387; }
+
+  .cursor-a {
+    position: absolute; width: 2px; height: 16px;
+    background: #CBA6F7; top: 58px; left: 198px;
+  }
+  .cursor-label-a {
+    position: absolute; top: 44px; left: 196px;
+    background: #CBA6F7; color: #1e1e2e;
+    font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+    font-family: var(--font-sans);
+  }
+  .cursor-b {
+    position: absolute; width: 2px; height: 16px;
+    background: #89dceb; top: 91px; left: 272px;
+  }
+  .cursor-label-b {
+    position: absolute; top: 77px; left: 270px;
+    background: #89dceb; color: #1e1e2e;
+    font-size: 9px; padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+    font-family: var(--font-sans);
+  }
+
+  .chat-panel {
+    border-left: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    display: flex; flex-direction: column;
+  }
+  .chat-header {
+    padding: 8px 12px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 10px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .msg-bubble { max-width: 100%; }
+  .msg-meta { font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+  .msg-text {
+    font-size: 12px; padding: 6px 9px;
+    border-radius: 10px;
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    display: inline-block; max-width: 100%;
+  }
+  .msg-mine .msg-text {
+    background: #CECBF6; color: #26215C;
+  }
+  .msg-mine { text-align: right; }
+  .chat-input-area {
+    padding: 8px;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    display: flex; gap: 6px; align-items: center;
+  }
+  .chat-input {
+    flex: 1; border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 5px 9px; font-size: 12px;
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    outline: none;
+  }
+  .send-btn {
+    background: #534AB7; color: #EEEDFE;
+    border: none; border-radius: var(--border-radius-md);
+    padding: 5px 10px; font-size: 12px; cursor: pointer;
+  }
+
+  .bottom-panel {
+    background: #13131f;
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+    overflow: hidden;
+  }
+  .console-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; background: #0d0d18;
+    border-bottom: 0.5px solid #2a2a3e;
+  }
+  .console-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  .console-dot { width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; }
+  .console-body { padding: 10px 14px; font-family: var(--font-mono); font-size: 12px; line-height: 1.8; }
+  .out-line { color: #cdd6f4; }
+  .out-success { color: #a6e3a1; }
+  .out-err { color: #f38ba8; }
+  .out-muted { color: #585b70; }
+
+  .wrapper {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background: var(--color-background-primary);
+  }
+</style>
+
+<h2 class="sr-only">Rough UI mockup for CodeCollab — a real-time collaborative code editor with top bar, user panel, Monaco editor, chat panel, and output console.</h2>
+
+<div class="wrapper">
+
+  <div class="topbar">
+    <span class="app-name">CodeCollab</span>
+    <span class="room-id">Room #A7X92</span>
+    <div class="badge-live"><div class="dot"></div> Live</div>
+    <button class="btn">Copy Link</button>
+    <select class="lang-select">
+      <option>Python</option>
+      <option>JavaScript</option>
+      <option>Java</option>
+      <option>C++</option>
+    </select>
+    <button class="btn-run">&#9654; Run</button>
+    <button class="btn-leave">Leave</button>
+  </div>
+
+  <div class="main-area">
+
+    <div class="left-panel">
+      <div class="panel-title">Online (3)</div>
+      <div class="user-item">
+        <div class="avatar av1">AR</div>
+        <div>
+          <div class="user-name">Arjun</div>
+          <div class="user-you">you</div>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+      <div class="user-item">
+        <div class="avatar av2">PR</div>
+        <div class="user-name">Priya</div>
+        <div class="online-dot"></div>
+      </div>
+      <div class="user-item">
+        <div class="avatar av3">KR</div>
+        <div class="user-name">Kiran</div>
+        <div class="online-dot"></div>
+      </div>
+      <div style="margin-top: 18px;">
+        <div class="panel-title">Files</div>
+        <div style="padding: 5px 8px; font-size: 12px; color: var(--color-text-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); margin-bottom: 4px;">main.py</div>
+        <div style="padding: 5px 8px; font-size: 12px; color: var(--color-text-tertiary);">utils.py</div>
+        <div style="padding: 5px 8px; font-size: 12px; color: var(--color-text-tertiary);">+ New file</div>
+      </div>
+    </div>
+
+    <div class="editor-area">
+      <div class="editor-topbar">
+        <div class="tab active">main.py</div>
+        <div class="tab">utils.py</div>
+      </div>
+      <div class="line-numbers">
+        <div class="ln">1</div><div class="ln">2</div><div class="ln">3</div>
+        <div class="ln">4</div><div class="ln">5</div><div class="ln">6</div>
+        <div class="ln">7</div><div class="ln">8</div><div class="ln">9</div>
+        <div class="ln">10</div><div class="ln">11</div><div class="ln">12</div>
+      </div>
+      <div class="code-lines">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">greet</span>(name):</div>
+        <div class="code-line">    <span class="fn">print</span>(<span class="str">f"Hello, {name}!"</span>)</div>
+        <div class="code-line"></div>
+        <div class="code-line"><span class="kw">def</span> <span class="fn">add</span>(a, b):</div>
+        <div class="code-line">    <span class="kw">return</span> a + b</div>
+        <div class="code-line"></div>
+        <div class="code-line"><span class="cmt"># Main execution</span></div>
+        <div class="code-line"><span class="fn">greet</span>(<span class="str">"CodeCollab"</span>)</div>
+        <div class="code-line">result = <span class="fn">add</span>(<span class="num">10</span>, <span class="num">20</span>)</div>
+        <div class="code-line"><span class="fn">print</span>(<span class="str">f"Result: </span>{result}<span class="str">"</span>)</div>
+      </div>
+      <div class="cursor-label-a">Priya</div>
+      <div class="cursor-a"></div>
+      <div class="cursor-label-b">Kiran</div>
+      <div class="cursor-b"></div>
+    </div>
+
+    <div class="chat-panel">
+      <div class="chat-header">Chat</div>
+      <div class="chat-messages">
+        <div class="msg-bubble">
+          <div class="msg-meta">Priya · 2m ago</div>
+          <div class="msg-text">editing the greet function</div>
+        </div>
+        <div class="msg-bubble">
+          <div class="msg-meta">Kiran · 1m ago</div>
+          <div class="msg-text">I'll handle add() logic</div>
+        </div>
+        <div class="msg-bubble msg-mine">
+          <div class="msg-meta">You · now</div>
+          <div class="msg-text">Running the code!</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input class="chat-input" type="text" placeholder="Type a message..." />
+        <button class="send-btn">&#10148;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="console-header">
+      <div class="console-dot"></div>
+      <span class="console-title">Output Console</span>
+    </div>
+    <div class="console-body">
+      <div class="out-muted">$ python main.py</div>
+      <div class="out-success">Hello, CodeCollab!</div>
+      <div class="out-line">Result: 30</div>
+      <div class="out-muted">Process finished with exit code 0</div>
+    </div>
+  </div>
+
+</div>
