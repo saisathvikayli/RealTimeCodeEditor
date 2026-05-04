@@ -1,3 +1,0 @@
-# RealTimeCodeEditor
-mern project
-hii
