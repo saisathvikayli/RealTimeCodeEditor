@@ -6,9 +6,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { authRouter } from "./routes/authRoutes.js";
 import { roomRouter } from "./routes/roomRoutes.js";
-import { messageRouter } from "./routes/messageRoutes.js";
+
 
 
 app.use("/api/auth", authRouter);
 app.use("/api/room", roomRouter);
-app.use("/api/message", messageRouter);
