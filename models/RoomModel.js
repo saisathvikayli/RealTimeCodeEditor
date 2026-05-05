@@ -14,6 +14,10 @@ const RoomSchema = new Schema({
         type: String,
         default: ""
     },
+    createdBy: {
+    type: String,
+    required: true  // who created the room
+    },
     participants: {
         type: [String],
         default: []
