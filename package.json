@@ -1,0 +1,21 @@
+{
+  "name": "mern-group",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "exp": "^57.2.1",
+    "monaco-editor": "^0.55.1",
+    "mongoose": "^9.6.1",
+    "socket.io": "^4.8.3"
+  }
+}
