@@ -1,0 +1,59 @@
+### Read all users
+GET http://localhost:3000/users
+
+### Read a user by Id
+GET http://localhost:3000/users/12
+
+###create new user
+POST http://localhost:3000/users
+Content-Type: application/json
+{
+  "id":1,
+  "name":"Nani",
+  "age":20
+}
+
+###update th user
+PUT http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "id":1,
+  "name":"Lokesh",
+  "age":20
+}
+###
+DELETE http://localhost:3000/users/1
+
+
+
+
+### Read all users
+GET http://localhost:3000/products
+
+### Read a user by Id
+GET http://localhost:3000/products/apple
+
+###create new user
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "productId":1,
+  "name":"Mobile",
+  "brand":"apple",
+  "price":10000
+}
+
+###update th user
+PUT http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "productId":1,
+  "name":"Laptop",
+  "brand":"apple",
+  "price":10000
+}
+###
+DELETE http://localhost:3000/products/1
