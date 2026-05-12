@@ -2,9 +2,6 @@ import Room from "../models/Room.js";
 import Message from "../models/Message.js";
 import axios from "axios";
 
-// =========================
-// SAFE WRAPPER
-// =========================
 const safe = (socket, fn) => async (...args) => {
   try {
     await fn(...args);
@@ -14,17 +11,9 @@ const safe = (socket, fn) => async (...args) => {
   }
 };
 
-// =========================
-// JUDGE0 CONFIG
-// =========================
 const JUDGE0_URL = "https://ce.judge0.com/submissions";
+const headers = { "Content-Type": "application/json" };
 
-const headers = {
-  "Content-Type": "application/json",
-};
-// =========================
-// LANGUAGE MAP
-// =========================
 const languageMap = {
   javascript: 63,
   python: 71,
@@ -32,72 +21,39 @@ const languageMap = {
   java: 62,
 };
 
-// =========================
-// SOCKET HANDLER
-// =========================
+// store username per socket id in memory
+const socketUserMap = new Map();
+
 const socketHandler = (io) => {
   io.on("connection", (socket) => {
     console.log("Connected:", socket.id);
 
-    // =========================
-    // ROOM CREATE
-    // =========================
-    socket.on(
-      "room:create",
-      safe(socket, async ({ roomId, username }) => {
-        const exists = await Room.findOne({ roomId });
-
-        if (exists) {
-          return socket.emit("error", "Room already exists");
-        }
-
-        const room = await Room.create({
-          roomId,
-          code: "",
-          language: "javascript",
-          users: [{ socketId: socket.id, username }],
-        });
-
-        socket.join(roomId);
-
-        socket.emit("room:users", room.users);
-        socket.emit("code:sync", { code: room.code });
-
-        console.log(`Room created: ${roomId}`);
-      })
-    );
-
-    // =========================
-    // ROOM JOIN
-    // =========================
+    // join an existing room
     socket.on(
       "room:join",
       safe(socket, async ({ roomId, username }) => {
-        let room = await Room.findOne({ roomId });
-
-        if (!room) {
-          room = await Room.create({
-            roomId,
-            code: "",
-            language: "javascript",
-            users: [],
-          });
-        }
+        const room = await Room.findOne({ roomId });
+        if (!room) return socket.emit("error", "Room not found");
 
         socket.join(roomId);
+        socketUserMap.set(socket.id, { roomId, username });
 
+        // remove any old entries with the same username
         await Room.updateOne(
           { roomId },
-          {
-            $addToSet: {
-              users: { socketId: socket.id, username },
-            },
-          }
+          { $pull: { users: { username } } }
+        );
+
+        // add fresh entry
+        await Room.updateOne(
+          { roomId },
+          { $push: { users: { socketId: socket.id, username } } }
         );
 
         const updatedRoom = await Room.findOne({ roomId });
 
-        socket.emit("room:users", updatedRoom.users);
+        // broadcast to everyone in the room (including sender)
+        io.to(roomId).emit("room:users", updatedRoom.users);
         socket.emit("code:sync", { code: updatedRoom.code });
 
         const messages = await Message.find({ roomId })
@@ -105,14 +61,11 @@ const socketHandler = (io) => {
           .limit(50);
 
         socket.emit("chat:history", messages);
-
         socket.to(roomId).emit("activity:log", `${username} joined`);
       })
     );
 
-    // =========================
-    // ROOM LEAVE
-    // =========================
+    // leave a room
     socket.on(
       "room:leave",
       safe(socket, async ({ roomId }) => {
@@ -120,9 +73,7 @@ const socketHandler = (io) => {
       })
     );
 
-    // =========================
-    // CODE CHANGE
-    // =========================
+    // sync code change
     socket.on(
       "code:change",
       safe(socket, async ({ roomId, code }) => {
@@ -131,31 +82,32 @@ const socketHandler = (io) => {
       })
     );
 
-    // =========================
-    // CURSOR MOVE
-    // =========================
-    socket.on("cursor:move", ({ roomId, line, column }) => {
+    // change language for the whole room
+  socket.on(
+  "language:change",
+  safe(socket, async ({ roomId, language, code }) => {
+    await Room.updateOne({ roomId }, { language, code });
+    socket.to(roomId).emit("language:sync", { language, code });
+  })
+);
+
+    // broadcast cursor position
+    socket.on("cursor:move", ({ roomId, line, column, username }) => {
       socket.to(roomId).emit("cursor:update", {
-        userId: socket.id,
+        socketId: socket.id,
+        username,
         line,
         column,
       });
     });
 
-    // =========================
-    // CHAT SEND
-    // =========================
+    // chat message
     socket.on(
       "chat:send",
       safe(socket, async ({ roomId, text, sender }) => {
-        const msg = await Message.create({
-          roomId,
-          sender,
-          text,
-        });
+        const msg = await Message.create({ roomId, sender, text });
 
         io.to(roomId).emit("chat:message", {
-          userId: socket.id,
           sender,
           text,
           ts: msg.createdAt,
@@ -163,111 +115,89 @@ const socketHandler = (io) => {
       })
     );
 
-    // =========================
-    // 🚀 CODE RUN (MAIN FEATURE)
-    // =========================
+    // run code via judge0
     socket.on(
-  "code:run",
-  safe(socket, async ({ roomId, code, language, input }) => {
-    let sourceCode = code;
+      "code:run",
+      safe(socket, async ({ roomId, code, language, input }) => {
+        let sourceCode = code;
 
-    // =========================
-    // GET CODE FROM ROOM IF EMPTY
-    // =========================
-    if (!sourceCode) {
-      const room = await Room.findOne({ roomId });
-      if (!room) return socket.emit("error", "Room not found");
-
-      sourceCode = room.code;
-      language = room.language;
-    }
-
-    const language_id = languageMap[language] || 63;
-
-    io.to(roomId).emit("activity:log", "⚡ Running code...");
-
-    console.log("Sending to Judge0...");
-    console.log("Language:", language);
-    console.log("Code:\n", sourceCode);
-
-    try {
-      const response = await axios.post(
-  `${JUDGE0_URL}?base64_encoded=true&wait=true`,
-  {
-    source_code: Buffer.from(sourceCode).toString("base64"),
-    language_id,
-    stdin: Buffer.from(input || "").toString("base64"),
-  },
-  { headers }
-);
-
-const result = response.data;
-
-const decode = (data) =>
-  data ? Buffer.from(data, "base64").toString("utf-8") : null;
-
-const output =
-  decode(result.stdout) ||
-  decode(result.stderr) ||
-  decode(result.compile_output) ||
-  "No output";
-      // =========================
-      // SAFE STATUS
-      // =========================
-      const status =
-        result.status?.description ||
-        (result.stderr && "Runtime Error") ||
-        (result.compile_output && "Compilation Error") ||
-        "Unknown";
-
-      io.to(roomId).emit("code:output", {
-        output,
-        error: result.stderr || null,
-        compile_output: result.compile_output || null,
-        status,
-      });
-
-    } catch (err) {
-      console.error("Execution Error:", err.message);
-
-      if (err.response) {
-        console.error("API Error:", err.response.data);
-      }
-
-      io.to(roomId).emit("code:output", {
-        output: null,
-        error: "Execution failed",
-        status: "Error",
-      });
-    }
-  })
-);
-    // =========================
-    // DISCONNECTING
-    // =========================
-    socket.on("disconnecting", async () => {
-      for (let roomId of socket.rooms) {
-        if (roomId !== socket.id) {
-          await handleLeave(socket, roomId, io);
+        if (!sourceCode) {
+          const room = await Room.findOne({ roomId });
+          if (!room) return socket.emit("error", "Room not found");
+          sourceCode = room.code;
+          language = room.language;
         }
-      }
-    });
 
-    // =========================
-    // DISCONNECT
-    // =========================
-    socket.on("disconnect", () => {
+        const language_id = languageMap[language] || 63;
+        io.to(roomId).emit("activity:log", "running code...");
+
+        try {
+          const response = await axios.post(
+            `${JUDGE0_URL}?base64_encoded=true&wait=true`,
+            {
+              source_code: Buffer.from(sourceCode).toString("base64"),
+              language_id,
+              stdin: Buffer.from(input || "").toString("base64"),
+            },
+            { headers }
+          );
+
+          const result = response.data;
+          const decode = (data) =>
+            data ? Buffer.from(data, "base64").toString("utf-8") : null;
+
+          const output =
+            decode(result.stdout) ||
+            decode(result.stderr) ||
+            decode(result.compile_output) ||
+            "No output";
+
+          const status =
+            result.status?.description ||
+            (result.stderr && "Runtime Error") ||
+            (result.compile_output && "Compilation Error") ||
+            "Unknown";
+
+          io.to(roomId).emit("code:output", {
+            output,
+            error: result.stderr || null,
+            compile_output: result.compile_output || null,
+            status,
+          });
+        } catch (err) {
+          console.error("Execution Error:", err.message);
+          io.to(roomId).emit("code:output", {
+            output: null,
+            error: "Execution failed",
+            status: "Error",
+          });
+        }
+      })
+    );
+
+    // handle disconnect
+    socket.on("disconnect", async () => {
       console.log("Disconnected:", socket.id);
+      const info = socketUserMap.get(socket.id);
+      if (info) {
+        await handleLeave(socket, info.roomId, io, info.username);
+        socketUserMap.delete(socket.id);
+      }
     });
   });
 };
 
-// =========================
-// HANDLE LEAVE
-// =========================
-const handleLeave = async (socket, roomId, io) => {
+// remove user from room
+const handleLeave = async (socket, roomId, io, knownUsername) => {
   socket.leave(roomId);
 
+  let username = knownUsername;
+  if (!username) {
+    const info = socketUserMap.get(socket.id);
+    username = info?.username;
+  }
+
+  // remove this specific socket entry
   await Room.updateOne(
     { roomId },
     { $pull: { users: { socketId: socket.id } } }
@@ -276,12 +206,9 @@ const handleLeave = async (socket, roomId, io) => {
   const room = await Room.findOne({ roomId });
   if (!room) return;
 
-  socket.to(roomId).emit("activity:log", `${socket.id} left`);
   io.to(roomId).emit("room:users", room.users);
-
-  if (room.users.length === 0) {
-    await Room.deleteOne({ roomId });
-    console.log(`Room deleted: ${roomId}`);
+  if (username) {
+    socket.to(roomId).emit("activity:log", `${username} left`);
   }
 };
 

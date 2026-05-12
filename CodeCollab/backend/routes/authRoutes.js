@@ -5,9 +5,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// =====================
-// 📝 SIGNUP
-// =====================
+//signup/register
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -31,9 +29,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// =====================
-// 🔐 LOGIN
-// =====================
+//login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -61,11 +57,11 @@ router.post("/login", async (req, res) => {
 });
 
 
-router.get("/users",async(req,res)=>{
+router.get("/users", async(req,res) => {
   const users = await User.find();
-  if(!users){
-    res.status(400).json({message:"no users"});
+  if(!users || users.length === 0){
+    return res.status(400).json({message:"no users"});
   }
-  res.status(200).json({message:"ALL USERS",payLoad:users})
+  res.status(200).json({message:"ALL USERS", payLoad:users})
 })
 export default router;

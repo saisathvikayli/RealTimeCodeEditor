@@ -1,0 +1,60 @@
+.panel {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Minimap strip */
+.minimap {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-raised);
+  flex-shrink: 0;
+}
+.minimapLine {
+  height: 3px;
+  background: var(--accent-blue);
+  border-radius: 2px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 11px; font-weight: 500;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition);
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { color: var(--text-primary); border-bottom-color: var(--accent-green); }
+
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* History */
+.history { padding: 0.75rem; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex: 1; }
+.historyItem { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-radius: var(--radius-sm); background: var(--bg-raised); }
+.historyTime { font-size: 10px; color: var(--text-muted); font-family: var(--font-code); }
+.historyDesc { font-size: 12px; color: var(--text-secondary); }
+
+/* Settings */
+.settings { padding: 1rem; }
+.settingsNote { font-size: 12px; color: var(--text-muted); }
+
+.empty { font-size: 12px; color: var(--text-muted); padding: 1rem 0; }

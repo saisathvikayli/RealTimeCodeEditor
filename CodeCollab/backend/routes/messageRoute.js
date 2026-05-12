@@ -1,28 +1,29 @@
-import exp from "express"; // importing express
-import { MessageModel } from "../models/MessageModel.js"; // importing message schema
+import express from "express";
+import Message from "../models/Message.js";
 
-export const messageRouter = exp.Router(); // creating router instance
+const router = express.Router();
 
 // GET ALL MESSAGES FOR A ROOM
-messageRouter.get("/:roomId", async (req, res) => {
-    try {
-        const { roomId } = req.params; // get roomId from URL
-        const messages = await MessageModel.find({ roomId }); // find all messages for this room
-        res.status(200).json({ message: "Messages fetched", messages }); // send messages to frontend
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message }); // catch any errors
-    }
+router.get("/:roomId", async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const messages = await Message.find({ roomId }).sort({ createdAt: 1 });
+    res.status(200).json({ message: "Messages fetched", messages });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
 
 // SAVE A NEW MESSAGE
-messageRouter.post("/:roomId", async (req, res) => {
-    try {
-        const { roomId } = req.params; // get roomId from URL
-        const { sender, text } = req.body; // get sender and text from request body
-        const newMessage = new MessageModel({ roomId, sender, text }); // create new message object
-        await newMessage.save(); // save to MongoDB
-        res.status(201).json({ message: "Message saved", newMessage }); // send saved message
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message }); // catch any errors
-    }
+router.post("/:roomId", async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { sender, text } = req.body;
+    const newMessage = await Message.create({ roomId, sender, text });
+    res.status(201).json({ message: "Message saved", newMessage });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
+
+export default router;

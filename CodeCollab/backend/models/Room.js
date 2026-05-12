@@ -1,14 +1,23 @@
 import { Schema, model } from "mongoose";
 
 const userSchema = new Schema({
-    username:String,
-    socketId:String
+    username: String,
+    socketId: String
 });
+
 const RoomSchema = new Schema({
     roomId: {
         type: String,
         required: true,
         unique: true
+    },
+    name: {
+        type: String,
+        default: "Unnamed Room"
+    },
+    roomPassword: {
+        type: String,
+        default: ""
     },
     language: {
         type: String,
@@ -23,9 +32,9 @@ const RoomSchema = new Schema({
         default: []
     }
 }, {
-  timestamps:true,
-  versionKey:false,
-  strict:"throw"
+    timestamps: true,
+    versionKey: false,
+    strict: "throw"
 });
 
 export default model("Room", RoomSchema);
