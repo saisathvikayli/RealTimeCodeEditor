@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import styles from './Profile.module.css'
 
-const API = 'http://localhost:5000/api'
+const API = 'https://realtimecodeeditor-965r.onrender.com/api'
 
 function getInitials(name = '') {
   return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)

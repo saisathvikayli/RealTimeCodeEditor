@@ -64,7 +64,7 @@ export default function RoomPage() {
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/rooms/${id}`)
+        const res = await axios.get(`https://realtimecodeeditor-965r.onrender.com/api/rooms/${id}`)
         const r = res.data.room
         setRoom(r)
         setLang(r.language || 'python')

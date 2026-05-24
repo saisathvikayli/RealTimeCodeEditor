@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import styles from './Dashboard.module.css'
 
-const API = 'http://localhost:5000/api'
+const API = 'https://realtimecodeeditor-965r.onrender.com/api'
 const LANGS = ['python', 'javascript', 'typescript', 'cpp', 'java', 'go', 'rust']
 
 function getInitials(name = '') {

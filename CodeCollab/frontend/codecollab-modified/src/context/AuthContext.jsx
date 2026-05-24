@@ -3,7 +3,7 @@ import axios from 'axios'
 
 const AuthContext = createContext(null)
 
-const API = 'http://localhost:5000/api/auth'
+const API = 'https://realtimecodeeditor-965r.onrender.com/api/auth'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
