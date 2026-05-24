@@ -7,6 +7,7 @@ import LoginPage    from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import RoomPage     from './pages/RoomPage'
+import ProfilePage  from './pages/ProfilePage'
 
 function AuthPageWrapper({ children }) {
   useEffect(() => {
@@ -34,6 +35,9 @@ export default function App() {
         } />
         <Route path="/room/:id" element={
           <ProtectedRoute><RoomPage /></ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute><ProfilePage /></ProtectedRoute>
         } />
 
         {/* Default */}

@@ -10,6 +10,7 @@ import Sidebar      from '../components/sidebar/Sidebar'
 import OutputPanel  from '../components/editor/OutputPanel'
 import BottomBar    from '../components/editor/BottomBar'
 import RightPanel   from '../components/layout/RightPanel'
+import Whiteboard   from '../components/whiteboard/Whiteboard'
 
 import styles from './RoomPage.module.css'
 
@@ -30,7 +31,6 @@ const LANG_MAP = {
   cpp: 'cpp', java: 'java', go: 'go', rust: 'rust'
 }
 
-// pick a color for a username (consistent across sessions)
 const USER_COLORS = ['#68d391', '#f6ad55', '#63b3ed', '#fc8181', '#b794f4', '#f687b3', '#4fd1c5']
 const colorForUser = (name) => {
   if (!name) return USER_COLORS[0]
@@ -54,11 +54,11 @@ export default function RoomPage() {
   const [activity, setActivity]         = useState(['Room created'])
   const [autoSaved, setAutoSaved]       = useState(null)
 
-  const editorRef       = useRef(null)
-  const monacoRef       = useRef(null)
-  const autoSaveTimer   = useRef(null)
-  const cursorDecorations = useRef({})  // { username: decorationIds }
-const cursorPositions = useRef({}) 
+  const editorRef         = useRef(null)
+  const monacoRef         = useRef(null)
+  const autoSaveTimer     = useRef(null)
+  const cursorDecorations = useRef({})
+  const cursorPositions   = useRef({})
 
   // load room from backend
   useEffect(() => {
@@ -75,70 +75,70 @@ const cursorPositions = useRef({})
     }
     fetchRoom()
   }, [id])
+
   // redraw all cursors after code updates
-useEffect(() => {
-  if (!editorRef.current || !monacoRef.current) return
-  Object.entries(cursorPositions.current).forEach(([username, pos]) => {
-    drawRemoteCursor(username, pos.line, pos.column)
-  })
-}, [code])
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return
+    Object.entries(cursorPositions.current).forEach(([username, pos]) => {
+      drawRemoteCursor(username, pos.line, pos.column)
+    })
+  }, [code])
 
-  // draw a remote user's cursor in the editor
+  // draw a remote user's cursor
   const drawRemoteCursor = (username, line, column) => {
-  if (!editorRef.current || !monacoRef.current) return
-  const monaco = monacoRef.current
-  const color = colorForUser(username)
+    if (!editorRef.current || !monacoRef.current) return
+    const monaco = monacoRef.current
+    const color = colorForUser(username)
 
-  // store latest position for redraw later
-  cursorPositions.current[username] = { line, column }
+    cursorPositions.current[username] = { line, column }
 
-  const newDecorations = [
-    {
-      range: new monaco.Range(line, column, line, column + 1),
-      options: {
-        className: 'remote-cursor-' + username.replace(/\s/g, ''),
-        hoverMessage: { value: username },
-        stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+    const newDecorations = [
+      {
+        range: new monaco.Range(line, column, line, column + 1),
+        options: {
+          className: 'remote-cursor-' + username.replace(/\s/g, ''),
+          hoverMessage: { value: username },
+          stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+        }
       }
+    ]
+
+    const styleId = 'cursor-style-' + username.replace(/\s/g, '')
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style')
+      style.id = styleId
+      style.innerHTML = `
+        .remote-cursor-${username.replace(/\s/g, '')}::before {
+          content: '';
+          display: inline-block;
+          width: 2px;
+          height: 18px;
+          background: ${color};
+          position: absolute;
+          margin-left: -1px;
+        }
+        .remote-cursor-${username.replace(/\s/g, '')}::after {
+          content: '${username}';
+          position: absolute;
+          background: ${color};
+          color: #000;
+          font-size: 10px;
+          font-family: 'Inter', sans-serif;
+          padding: 1px 6px;
+          border-radius: 3px;
+          margin-top: -16px;
+          margin-left: -1px;
+          white-space: nowrap;
+          z-index: 10;
+        }
+      `
+      document.head.appendChild(style)
     }
-  ]
 
-  const styleId = 'cursor-style-' + username.replace(/\s/g, '')
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style')
-    style.id = styleId
-    style.innerHTML = `
-      .remote-cursor-${username.replace(/\s/g, '')}::before {
-        content: '';
-        display: inline-block;
-        width: 2px;
-        height: 18px;
-        background: ${color};
-        position: absolute;
-        margin-left: -1px;
-      }
-      .remote-cursor-${username.replace(/\s/g, '')}::after {
-        content: '${username}';
-        position: absolute;
-        background: ${color};
-        color: #000;
-        font-size: 10px;
-        font-family: 'Inter', sans-serif;
-        padding: 1px 6px;
-        border-radius: 3px;
-        margin-top: -16px;
-        margin-left: -1px;
-        white-space: nowrap;
-        z-index: 10;
-      }
-    `
-    document.head.appendChild(style)
+    const oldIds = cursorDecorations.current[username] || []
+    const newIds = editorRef.current.deltaDecorations(oldIds, newDecorations)
+    cursorDecorations.current[username] = newIds
   }
-
-  const oldIds = cursorDecorations.current[username] || []
-  const newIds = editorRef.current.deltaDecorations(oldIds, newDecorations)
-  cursorDecorations.current[username] = newIds
-}
 
   // socket events
   const { emit } = useSocket(id, user?.name || 'User', {
@@ -162,14 +162,14 @@ useEffect(() => {
       setRunning(false)
     },
     [EVENTS.CURSOR_UPDATE]: ({ username, line, column }) => {
-  if (username === user?.name) return
-  drawRemoteCursor(username, line, column)
-},
-[EVENTS.LANGUAGE_SYNC]: ({ language, code }) => {
-  setLang(language)
-  setCode(code)
-  setActivity(a => [`language changed to ${language}`, ...a].slice(0, 10))
-}
+      if (username === user?.name) return
+      drawRemoteCursor(username, line, column)
+    },
+    [EVENTS.LANGUAGE_SYNC]: ({ language, code }) => {
+      setLang(language)
+      setCode(code)
+      setActivity(a => [`language changed to ${language}`, ...a].slice(0, 10))
+    }
   })
 
   const handleCodeChange = useCallback(val => {
@@ -182,7 +182,6 @@ useEffect(() => {
     }, 1500)
   }, [id, emit])
 
-  // run code via socket -> backend -> judge0
   const handleRun = () => {
     setRunning(true)
     setOutput(`Running ${language} code...\n`)
@@ -201,18 +200,16 @@ useEffect(() => {
     emit(EVENTS.CHAT_SEND, { roomId: id, text, sender: user?.name || 'You' })
   }, [user, id, emit])
 
- const handleLanguageChange = (lang) => {
-  setLang(lang)
-  emit(EVENTS.LANGUAGE_CHANGE, { roomId: id, language: lang, code })
-  setActivity(a => [`${user?.name || 'You'} switched to ${lang}`, ...a].slice(0, 10))
-}
+  const handleLanguageChange = (lang) => {
+    setLang(lang)
+    emit(EVENTS.LANGUAGE_CHANGE, { roomId: id, language: lang, code })
+    setActivity(a => [`${user?.name || 'You'} switched to ${lang}`, ...a].slice(0, 10))
+  }
 
-  // when monaco mounts, set up cursor tracking
   const handleEditorMount = (editor, monaco) => {
     editorRef.current = editor
     monacoRef.current = monaco
 
-    // emit cursor position when it changes (throttled to avoid spam)
     let throttle = null
     editor.onDidChangeCursorPosition((e) => {
       clearTimeout(throttle)
@@ -272,6 +269,9 @@ useEffect(() => {
         <Sidebar
           users={allUsers}
           activity={activity}
+          room={room}
+          code={code}
+          language={language}
         />
 
         <div className={styles.editorArea}>
@@ -302,30 +302,29 @@ useEffect(() => {
           </div>
 
           <BottomBar
-            users={allUsers.filter(u => !u.isYou)}
-            autoSavedAt={autoSaved}
-            onSave={() => {
-              emit(EVENTS.CODE_CHANGE, { roomId: id, code })
-              const now = new Date()
-              setAutoSaved(`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`)
-            }}
-          />
+  autoSavedAt={autoSaved}
+  code={code}
+/>
 
           <div className={styles.outputArea}>
             <OutputPanel
               output={output}
-              problems={[]}
               onClear={() => setOutput('')}
             />
           </div>
         </div>
 
-        <RightPanel
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          currentUser={{ id: user?.id, name: user?.name }}
-          history={[]}
-        />
+        <div className={styles.rightWrapper}>
+          <Whiteboard roomId={id} username={user?.name || 'User'} />
+
+          <RightPanel
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            currentUser={{ id: user?.id, name: user?.name }}
+            code={code}
+            language={language}
+          />
+        </div>
       </div>
     </div>
   )

@@ -11,6 +11,10 @@ const RoomSchema = new Schema({
         required: true,
         unique: true
     },
+     createdBy: {
+        type: String,
+        default: ""
+    },
     name: {
         type: String,
         default: "Unnamed Room"

@@ -1,6 +1,10 @@
 import Room from "../models/Room.js";
 import Message from "../models/Message.js";
+import User from "../models/User.js";
 import axios from "axios";
+
+// store whiteboard strokes per room in memory
+const whiteboardData = new Map();
 
 const safe = (socket, fn) => async (...args) => {
   try {
@@ -83,13 +87,13 @@ const socketHandler = (io) => {
     );
 
     // change language for the whole room
-  socket.on(
-  "language:change",
-  safe(socket, async ({ roomId, language, code }) => {
-    await Room.updateOne({ roomId }, { language, code });
-    socket.to(roomId).emit("language:sync", { language, code });
-  })
-);
+    socket.on(
+      "language:change",
+      safe(socket, async ({ roomId, language, code }) => {
+        await Room.updateOne({ roomId }, { language, code });
+        socket.to(roomId).emit("language:sync", { language, code });
+      })
+    );
 
     // broadcast cursor position
     socket.on("cursor:move", ({ roomId, line, column, username }) => {
@@ -175,6 +179,26 @@ const socketHandler = (io) => {
       })
     );
 
+    // broadcast drawing strokes to other users
+    // broadcast drawing strokes to other users
+socket.on("whiteboard:draw", ({ roomId, stroke, drawer }) => {
+  if (!whiteboardData.has(roomId)) whiteboardData.set(roomId, []);
+  whiteboardData.get(roomId).push(stroke);
+  socket.to(roomId).emit("whiteboard:draw", { stroke, drawer });
+});
+
+    // clear the whiteboard for everyone in the room
+    socket.on("whiteboard:clear", ({ roomId }) => {
+      whiteboardData.set(roomId, []);
+      io.to(roomId).emit("whiteboard:clear");
+    });
+
+    // send whiteboard state to user on join
+    socket.on("whiteboard:request_state", ({ roomId }) => {
+      const strokes = whiteboardData.get(roomId) || [];
+      socket.emit("whiteboard:state", { strokes });
+    });
+
     // handle disconnect
     socket.on("disconnect", async () => {
       console.log("Disconnected:", socket.id);
@@ -187,7 +211,7 @@ const socketHandler = (io) => {
   });
 };
 
-// remove user from room
+// remove user from room but keep the room alive
 const handleLeave = async (socket, roomId, io, knownUsername) => {
   socket.leave(roomId);
 
@@ -197,18 +221,22 @@ const handleLeave = async (socket, roomId, io, knownUsername) => {
     username = info?.username;
   }
 
-  // remove this specific socket entry
   await Room.updateOne(
     { roomId },
     { $pull: { users: { socketId: socket.id } } }
   );
+
+  await User.updateOne(
+  { username },
+  { $addToSet: { joinedRoomIds: roomId } }
+);
 
   const room = await Room.findOne({ roomId });
   if (!room) return;
 
   io.to(roomId).emit("room:users", room.users);
   if (username) {
-    socket.to(roomId).emit("activity:log", `${username} left`);
+    socket.to(roomId).emit("activity:log", "a user left");
   }
 };
 

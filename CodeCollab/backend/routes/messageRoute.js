@@ -3,7 +3,7 @@ import Message from "../models/Message.js";
 
 const router = express.Router();
 
-// GET ALL MESSAGES FOR A ROOM
+// get msgs from room 
 router.get("/:roomId", async (req, res) => {
   try {
     const { roomId } = req.params;
@@ -14,7 +14,7 @@ router.get("/:roomId", async (req, res) => {
   }
 });
 
-// SAVE A NEW MESSAGE
+// save new msg
 router.post("/:roomId", async (req, res) => {
   try {
     const { roomId } = req.params;

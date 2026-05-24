@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './Sidebar.module.css'
+import RoomInfo from './RoomInfo'
 
 const COLORS = {
   AR: 'var(--user-ar)',
@@ -16,10 +17,9 @@ function getColor(initials) {
   return COLORS[initials] || COLORS.default
 }
 
-export default function Sidebar({ users = [], activity = [] }) {
+export default function Sidebar({ users = [], activity = [], room = null }) {
   return (
     <aside className={styles.sidebar}>
-      {/* online users */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>Online ({users.length})</h3>
         <ul className={styles.userList}>
@@ -49,7 +49,6 @@ export default function Sidebar({ users = [], activity = [] }) {
         </ul>
       </section>
 
-      {/* live activity */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>Live Activity</h3>
         <ul className={styles.activityList}>
@@ -64,6 +63,8 @@ export default function Sidebar({ users = [], activity = [] }) {
           )}
         </ul>
       </section>
+
+      <RoomInfo room={room} />
     </aside>
   )
 }

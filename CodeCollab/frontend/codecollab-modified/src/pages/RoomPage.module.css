@@ -57,3 +57,20 @@
   0%,100% { opacity: 1; }
   50%      { opacity: 0.3; }
 }
+
+.rightWrapper {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 8px;
+  background: var(--bg-primary, #0d1117);
+  flex-shrink: 0;
+  height: 100%;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.rightWrapper > * {
+  margin: 0 !important;
+}

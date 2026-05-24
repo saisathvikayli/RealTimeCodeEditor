@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const loadRooms = async () => {
     setLoading(true)
     try {
-      const res = await axios.get(`${API}/rooms`)
+      const res = await axios.get(`${API}/rooms?username=${encodeURIComponent(user?.name || '')}`)
       setRooms(res.data.rooms || [])
     } catch (err) {
       console.error('failed to load rooms:', err.message)
@@ -93,7 +93,8 @@ export default function DashboardPage() {
 
     setJoining(true)
     try {
-      const res = await axios.get(`${API}/rooms/${joinForm.roomCode.trim()}`)
+      const cleanRoomCode = joinForm.roomCode.trim().replace(/^#/, '')
+      const res = await axios.get(`${API}/rooms/${cleanRoomCode}`)
       const room = res.data.room
       if (room.roomPassword !== joinForm.roomPassword.trim()) {
         setJoinError('Incorrect room password.')
@@ -143,7 +144,14 @@ export default function DashboardPage() {
         </div>
         <div className={styles.userArea}>
           <span className={styles.greeting}>Hey, {user?.name?.split(' ')[0]}</span>
-          <div className={styles.avatar} title={user?.name}>{getInitials(user?.name || 'U')}</div>
+          <button
+            className={styles.avatar}
+            onClick={() => navigate('/profile')}
+            title="View profile"
+            style={{ border: 'none', cursor: 'pointer' }}
+          >
+            {getInitials(user?.name || 'U')}
+          </button>
           <button className={styles.logoutBtn} onClick={logout}>Sign out</button>
         </div>
       </header>

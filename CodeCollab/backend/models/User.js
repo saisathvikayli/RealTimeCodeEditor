@@ -18,6 +18,10 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         minlength: 6
+    },
+    joinedRoomIds: {
+  type: [String],
+  default: []
     }
 }, {
   timestamps:true,

@@ -1,0 +1,120 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, rgba(99, 179, 237, 0.04), rgba(183, 148, 244, 0.04));
+  overflow: hidden;
+  min-height: 0;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  background: linear-gradient(90deg, #63b3ed, #b794f4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+  margin-bottom: 10px;
+  min-height: 0;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.user .label {
+  color: #68d391;
+}
+
+.ai .label {
+  color: #63b3ed;
+}
+
+.text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary, #ddd);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.inputRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: var(--bg-secondary, #1a1a1a);
+  border: 1px solid var(--border-subtle, #2a2a2a);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text-primary, #ddd);
+  outline: none;
+  font-family: inherit;
+}
+
+.input:focus {
+  border-color: #63b3ed;
+}
+
+.input:disabled {
+  opacity: 0.5;
+}
+
+.sendBtn {
+  background: #63b3ed;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sendBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: #4299e1;
+}

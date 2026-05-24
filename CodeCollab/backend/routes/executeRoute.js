@@ -11,14 +11,12 @@ const headers = {
   "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
 };
 
-// ============================
-// EXECUTE CODE
-// ============================
+//execute code
 router.post("/run", async (req, res) => {
   try {
     const { source_code, language_id, stdin } = req.body;
 
-    // Step 1: Submit code
+  
     const submission = await axios.post(
       `${JUDGE0_URL}?base64_encoded=false&wait=false`,
       {
@@ -31,7 +29,7 @@ router.post("/run", async (req, res) => {
 
     const token = submission.data.token;
 
-    // Step 2: Get result (polling)
+    
     let result;
     while (true) {
       const response = await axios.get(`${JUDGE0_URL}/${token}`, {

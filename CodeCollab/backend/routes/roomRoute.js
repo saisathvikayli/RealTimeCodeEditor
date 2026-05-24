@@ -4,10 +4,12 @@ import Room from "../models/Room.js";
 
 const router = express.Router();
 
-// get all rooms
+// get rooms created by a specific user
 router.get("/", async (req, res) => {
     try {
-        const rooms = await Room.find().sort({ createdAt: -1 });
+        const { username } = req.query;
+        const filter = username ? { createdBy: username } : {};
+        const rooms = await Room.find(filter).sort({ createdAt: -1 });
         res.status(200).json({ message: "Rooms fetched", rooms });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -24,6 +26,7 @@ router.post("/create", async (req, res) => {
             roomId,
             name: name || "Unnamed Room",
             roomPassword: roomPassword || "",
+            createdBy: username || "",
             language: language || "javascript",
             code: "",
             users: []
