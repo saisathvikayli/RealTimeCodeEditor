@@ -41,24 +41,33 @@ CodeCollab is a web-based collaborative coding platform that lets multiple devel
 | Styling | CSS Modules with custom theming |
 
 ---
+Screenshots
 
 ### Login / Register
-*[Screenshot placeholder]*
+<img width="699" height="797" alt="image" src="https://github.com/user-attachments/assets/70df8e70-17f8-429b-af4c-1fdeae6714ee" />
+<img width="697" height="855" alt="image" src="https://github.com/user-attachments/assets/5bcf0880-b04b-4b63-b216-e3695bae876c" />
+
 
 ### Dashboard - Your Rooms
-*[Screenshot placeholder]*
+<img width="1920" height="879" alt="image" src="https://github.com/user-attachments/assets/8938541c-5866-4a59-8a4c-a404bee7b17b" />
+
 
 ### Room - Real-Time Collaboration
-*[Screenshot placeholder]*
+<img width="1920" height="941" alt="image" src="https://github.com/user-attachments/assets/c703f52b-681f-4ec0-8634-4d1ef8ddb70d" />
 
 ### AI Code Assistant in Action
-*[Screenshot placeholder]*
+<img width="385" height="600" alt="image" src="https://github.com/user-attachments/assets/334730ab-e190-4f03-a097-175ded89c6c5" />
+<img width="1172" height="870" alt="image" src="https://github.com/user-attachments/assets/6b8c6b4b-b74e-468c-aaf7-9c1437dcf172" />
+
 
 ### Collaborative Whiteboard
-*[Screenshot placeholder]*
+<img width="404" height="276" alt="image" src="https://github.com/user-attachments/assets/d495d35f-e872-447e-a0e8-b7f143ee8986" />
+<img width="1906" height="845" alt="image" src="https://github.com/user-attachments/assets/f0a51d89-889e-4f44-a5d5-be34fdb11396" />
+
 
 ### User Profile Page
-*[Screenshot placeholder]*
+
+<img width="1920" height="877" alt="image" src="https://github.com/user-attachments/assets/be2d4665-08be-40d0-8766-6ac9abde1d61" />
 
 ---
 
