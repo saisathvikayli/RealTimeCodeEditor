@@ -1,0 +1,88 @@
+.bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  height: 36px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+}
+.tabs::-webkit-scrollbar { height: 2px; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab.active {
+  background: var(--bg-base);
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+.tabName {
+  background: none; border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-code);
+  font-size: 12px;
+  padding: 0 10px 0 12px;
+  height: 100%; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: color var(--transition);
+  white-space: nowrap;
+}
+.tab.active .tabName { color: var(--text-primary); }
+.tabName:hover { color: var(--text-primary); }
+
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-green); flex-shrink: 0;
+}
+
+.closeBtn {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 14px;
+  padding: 0 8px 0 2px; height: 100%; cursor: pointer;
+  transition: color var(--transition);
+}
+.closeBtn:hover { color: var(--text-primary); }
+
+.addTab {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 18px;
+  padding: 0 12px; cursor: pointer;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+.addTab:hover { color: var(--text-primary); }
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 0.5rem;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+}
+
+.actionBtn {
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none;
+  color: var(--text-muted); font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap;
+  transition: all var(--transition);
+}
+.actionBtn:hover { color: var(--text-primary); background: var(--bg-overlay); }

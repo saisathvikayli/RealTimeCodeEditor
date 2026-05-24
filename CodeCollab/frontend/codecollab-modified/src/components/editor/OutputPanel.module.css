@@ -1,0 +1,97 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-base);
+  overflow: hidden;
+}
+
+.tabBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  flex-shrink: 0;
+  height: 36px;
+}
+
+.tabs { display: flex; gap: 0; }
+
+.tab {
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 12px; font-weight: 500;
+  padding: 0 12px; height: 36px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: flex; align-items: center; gap: 5px;
+  transition: color var(--transition);
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { color: var(--text-primary); border-bottom-color: var(--accent-green); }
+
+.badge {
+  background: var(--accent-coral);
+  color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+}
+
+.clearBtn {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 11px;
+  cursor: pointer; padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
+}
+.clearBtn:hover { color: var(--text-secondary); }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  font-family: var(--font-code);
+}
+
+.outputText {
+  font-family: var(--font-code);
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--accent-green);
+}
+
+.empty { color: var(--text-muted); font-style: italic; }
+
+/* Problems */
+.problems { display: flex; flex-direction: column; gap: 4px; }
+.problem {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+.problem.error { background: rgba(252,129,129,0.08); border-left: 2px solid var(--accent-coral); }
+.problem.warning { background: rgba(240,159,39,0.08); border-left: 2px solid #F0A623; }
+.problemIcon { flex-shrink: 0; font-size: 11px; }
+.problem.error .problemIcon { color: var(--accent-coral); }
+.problem.warning .problemIcon { color: #F0A623; }
+.problemMsg { flex: 1; color: var(--text-secondary); }
+.problemLoc { font-family: var(--font-code); color: var(--text-muted); font-size: 11px; }
+
+/* Terminal */
+.terminal { display: flex; flex-direction: column; gap: 4px; }
+.cmdRow {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 4px;
+}
+.prompt { color: var(--accent-green); font-size: 13px; flex-shrink: 0; }
+.cmdInput {
+  flex: 1; background: none; border: none;
+  color: var(--text-primary);
+  font-family: var(--font-code); font-size: 12.5px;
+  outline: none; caret-color: var(--accent-green);
+}

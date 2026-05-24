@@ -1,0 +1,83 @@
+/* ── CodeCollab Global Styles ── */
+:root {
+  /* Dark terminal palette */
+  --bg-base:        #0d0f12;
+  --bg-surface:     #141720;
+  --bg-raised:      #1c2030;
+  --bg-overlay:     #232840;
+  --bg-input:       #181c28;
+
+  --border:         rgba(255,255,255,0.07);
+  --border-focus:   rgba(99,179,237,0.5);
+
+  --text-primary:   #e8eaf0;
+  --text-secondary: #8892a4;
+  --text-muted:     #4e5a6b;
+
+  --accent-green:   #00f5a0;
+  --accent-blue:    #63b3ed;
+  --accent-purple:  #b794f4;
+  --accent-coral:   #fc8181;
+
+  /* Presence colors */
+  --user-ar: #f6ad55;
+  --user-pr: #68d391;
+  --user-kr: #76e4f7;
+  --user-you: #b794f4;
+
+  --font-ui:   'Syne', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --transition: 150ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Auth pages get a scrollable body */
+body.auth-page {
+  overflow: auto;
+  height: auto;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+button { cursor: pointer; font-family: var(--font-ui); }
+input, textarea, select { font-family: var(--font-ui); }
+a { color: inherit; text-decoration: none; }
+
+/* Utility */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
+}
